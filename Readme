@@ -1,0 +1,84 @@
+
+Anleitung Upgrade von v2 auf v3
+
+
+https://docs.paperless-ngx.com/migration-v3/
+
+Update des Docker Containers:
+
+Per root
+
+Docker Composer File liegt unter:
+cd /home/paperless/
+
+1. Docker Container stoppen:
+
+docker compose down
+
+2. Datei docker-compose.yml anpassen um Update auf v2.20.15 durchzuführen
+
+nano docker-compose.yml
+Zeile 
+
+webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+
+abändern in
+
+webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.15
+
+um auf die empfohlene Version 2.20.15 vor dem Upgrade auf v3 zu kommen
+
+
+3. Update durchführen:
+
+docker compose pull
+
+4. Container wieder starten
+
+docker compose up -d
+
+5. Logs checken
+
+docker compose logs -f webserver
+
+6. Container wieder stoppen, wenn alles okay
+
+docker compose down
+
+7. Datei docker-compose.yml erneut anpassen:
+nano docker-compose.yml 
+
+Zeile
+
+webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.15
+
+wieder abändern in
+
+webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+
+und unten im Abschnitt environment folgende Einträge hinzufügen
+
+environment:
+    PAPERLESS_SECRET_KEY: $SECRET_KEY (z.B. paperless)
+    PAPERLESS_DBENGINE: postgresql
+    PAPERLESS_DB_OPTIONS: "sslmode=disable"
+
+Und folgenden Eintrag entfernen
+
+	PAPERLESS_DBSSLMODE: disable
+
+8. Container mit neu angepasster compose Datei erstellen:
+
+docker compose pull
+
+9. Container starten 
+
+docker compose up -d
+
+10. Optional -> Log beim Start beobachten
+
+docker compose logs -f webserver
